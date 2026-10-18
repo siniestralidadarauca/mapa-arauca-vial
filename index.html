@@ -447,7 +447,7 @@
       <div class="leg-item"><div class="leg-dot" style="background:#00703C"></div>Solo daños</div>
       <div class="leg-item">
         <div class="leg-rect" style="background:rgba(200,16,46,.12);border:1.5px dashed #C8102E"></div>
-        Zona crítica (radio 300 m)
+        Zona crítica (radio dinámico)
       </div>
     </div>
 
@@ -720,11 +720,18 @@ function buildZonas(data){
     if(ts<umbral) return;
     const cLat=members.reduce((a,d)=>a+d.lat,0)/members.length;
     const cLon=members.reduce((a,d)=>a+d.lon,0)/members.length;
-    criticas.push({cLat,cLon,ts,tm,th,n:members.length});
 
-    const op=Math.min(0.32, 0.08 + (ts/100)*0.24);
+    // Radio dinámico: distancia máxima de cualquier miembro al centroide + margen 40 m
+    const radioM = Math.max(
+      80,
+      Math.max(...members.map(d => hav(cLat,cLon,d.lat,d.lon)*1000)) + 40
+    );
+
+    criticas.push({cLat,cLon,ts,tm,th,n:members.length,radioM});
+
+    const op=Math.min(0.28, 0.07 + (ts/120)*0.21);
     L.circle([cLat,cLon],{
-      radius:BUFFER_M, color:'#C8102E', weight:1.5,
+      radius:radioM, color:'#C8102E', weight:1.5,
       dashArray:'5 4', fillColor:'#C8102E', fillOpacity:op
     }).bindPopup(`
       <div style="min-width:180px;padding:2px 0">
@@ -733,7 +740,7 @@ function buildZonas(data){
         <div class="pop-row"><span>⚰️ Fallecidos</span>${tm}</div>
         <div class="pop-row"><span>🤕 Heridos</span>${th}</div>
         <div class="pop-row"><span>⚡ Puntaje</span><strong style="color:#C8102E">${ts} pts</strong></div>
-        <div style="font-size:.64rem;color:var(--fg-dim);margin-top:5px">Radio buffer: ${BUFFER_M} m</div>
+        <div style="font-size:.64rem;color:var(--fg-dim);margin-top:5px">Radio: ${Math.round(radioM)} m (encierra todos los puntos del clúster)</div>
       </div>`)
     .addTo(zonasGroup);
   });
