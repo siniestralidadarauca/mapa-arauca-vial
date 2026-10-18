@@ -3,49 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Mapa de Siniestros Viales – Arauca</title>
+  <title>Mapa de Siniestros Viales · Arauca</title>
 
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <!-- MarkerCluster CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
 
   <style>
     /* ══════════════════════════════════════════
-       TOKENS — colores institucionales Arauca
-       Bandera: franjas roja (#C8102E), verde (#00703C), blanca
-       Diagonal azul en el escudo
+       TOKENS — fondo blanco / colores Arauca
        ══════════════════════════════════════════ */
     :root {
-      /* Paleta Arauca */
-      --rojo:      #C8102E;   /* rojo bandera */
-      --verde:     #00703C;   /* verde bandera */
-      --azul:      #1B4F8A;   /* azul diagonal escudo */
-      --blanco:    #FFFFFF;
+      --rojo:     #C8102E;
+      --verde:    #00703C;
+      --azul:     #1B4F8A;
+      --warning:  #D4700A;
 
-      /* Fondos y superficies */
-      --bg:        #0D1B0F;   /* verde muy oscuro */
-      --surface:   #122318;   /* superficie paneles */
-      --surface2:  #1A3020;   /* tarjetas / inputs */
-      --border:    #2A4A30;
+      /* Superficies claras */
+      --bg:       #F5F6F7;
+      --panel:    #FFFFFF;
+      --surface2: #F0F2F4;
+      --border:   #DDE1E6;
 
       /* Texto */
-      --fg:        #E8F0EB;
-      --fg-muted:  #8FAA94;
-      --fg-dim:    #506055;
+      --fg:       #1A2028;
+      --fg-muted: #5A6475;
+      --fg-dim:   #9AA3B0;
 
-      /* Semántico */
-      --critical:  #C8102E;
-      --warning:   #E8840A;
-      --safe:      #00703C;
-      --accent:    #E8840A;   /* naranja cálido para destacados */
-
-      /* Sombras */
-      --shadow:    0 2px 12px rgba(0,0,0,.45);
+      --shadow:   0 1px 6px rgba(0,0,0,.10);
+      --shadow-md:0 2px 14px rgba(0,0,0,.13);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,75 +51,46 @@
     header {
       position: relative;
       background: var(--rojo);
-      padding: 0;
+      height: 52px;
       display: flex;
-      align-items: stretch;
-      height: 56px;
+      align-items: center;
+      padding: 0 18px;
       flex-shrink: 0;
       z-index: 500;
-      box-shadow: var(--shadow);
+      box-shadow: 0 2px 8px rgba(200,16,46,.3);
     }
-    /* Franja verde en la base del header */
     header::after {
       content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 5px;
+      height: 4px;
       background: var(--verde);
     }
-    .header-esc {
-      width: 56px;
-      background: var(--verde);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
-    }
-    .header-text {
-      padding: 0 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .header-text h1 {
+    header h1 {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 1.15rem;
       font-weight: 700;
       color: #fff;
-      letter-spacing: 0.03em;
-      line-height: 1.1;
+      letter-spacing: 0.04em;
+      line-height: 1;
     }
-    .header-text p {
-      font-size: 0.68rem;
+    header p {
+      font-size: 0.67rem;
       color: rgba(255,255,255,.72);
       margin-top: 2px;
-    }
-    .header-badge {
-      margin-left: auto;
-      align-self: center;
-      margin-right: 14px;
-      background: rgba(0,0,0,.25);
-      color: #fff;
-      font-size: 0.68rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      white-space: nowrap;
-      border: 1px solid rgba(255,255,255,.2);
     }
 
     /* ══ LAYOUT ══ */
     .layout {
       display: flex;
-      height: calc(100% - 56px - 28px); /* header + statusbar */
+      height: calc(100% - 52px - 26px);
     }
 
     /* ══ SIDEBAR ══ */
     #sidebar {
-      width: 290px;
+      width: 282px;
       flex-shrink: 0;
-      background: var(--surface);
+      background: var(--panel);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
@@ -142,26 +101,26 @@
     #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     .sec {
-      padding: 12px 14px;
+      padding: 11px 13px;
       border-bottom: 1px solid var(--border);
     }
     .sec-title {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--fg-muted);
-      margin-bottom: 10px;
+      color: var(--fg-dim);
+      margin-bottom: 9px;
     }
 
     /* KPI grid */
-    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
     .kpi {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 8px;
+      border-radius: 7px;
+      padding: 9px 8px;
       text-align: center;
     }
     .kpi .num {
@@ -172,7 +131,7 @@
       color: var(--fg);
       font-variant-numeric: tabular-nums;
     }
-    .kpi .lbl { font-size: 0.63rem; color: var(--fg-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .05em; }
+    .kpi .lbl { font-size: 0.6rem; color: var(--fg-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .05em; }
     .kpi.c-rojo  .num { color: var(--rojo); }
     .kpi.c-warn  .num { color: var(--warning); }
     .kpi.c-verde .num { color: var(--verde); }
@@ -185,9 +144,9 @@
       color: var(--fg-muted);
       border-radius: 6px;
       padding: 7px 10px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       cursor: pointer;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-family: 'Inter', sans-serif;
       text-align: left;
       display: flex;
@@ -196,19 +155,11 @@
       transition: all .15s;
     }
     .layer-btn:last-child { margin-bottom: 0; }
-    .layer-btn.on  { background: #1A3020; border-color: var(--verde); color: var(--fg); }
+    .layer-btn.on { background: #EEF7F2; border-color: var(--verde); color: var(--fg); }
     .layer-btn:hover { border-color: var(--verde); }
-    .layer-btn .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .layer-btn .check {
-      margin-left: auto;
-      font-size: 0.7rem;
-      opacity: 0;
-    }
-    .layer-btn.on .check { opacity: 1; color: var(--verde); }
+    .layer-btn .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .layer-btn .check { margin-left: auto; font-size: 0.7rem; opacity: 0; color: var(--verde); }
+    .layer-btn.on .check { opacity: 1; }
 
     /* Slider */
     .slider-header {
@@ -228,25 +179,24 @@
       width: 100%;
       accent-color: var(--rojo);
       cursor: pointer;
-      height: 4px;
     }
     .slider-legend {
       display: flex;
       gap: 12px;
-      margin-top: 8px;
+      margin-top: 7px;
     }
     .sl-item {
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.68rem;
+      font-size: 0.67rem;
       color: var(--fg-muted);
     }
     .sl-item strong { color: var(--fg); }
 
     /* Filtros */
     .flt-label {
-      font-size: 0.68rem;
+      font-size: 0.67rem;
       color: var(--fg-dim);
       text-transform: uppercase;
       letter-spacing: .05em;
@@ -260,21 +210,20 @@
       color: var(--fg);
       border-radius: 6px;
       padding: 6px 8px;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-family: 'Inter', sans-serif;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
       outline: none;
       cursor: pointer;
     }
     select:focus { border-color: var(--verde); }
-    select option { background: var(--surface); }
 
     /* Leyenda */
     .leg-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.72rem;
+      font-size: 0.71rem;
       color: var(--fg-muted);
       margin-bottom: 5px;
     }
@@ -283,11 +232,7 @@
 
     /* Tabla zonas */
     .zonas-wrap { overflow-x: auto; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.7rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.69rem; }
     th {
       background: var(--surface2);
       color: var(--fg-muted);
@@ -296,144 +241,116 @@
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
-    td {
-      padding: 4px 6px;
-      border-bottom: 1px solid rgba(42,74,48,.4);
-    }
+    td { padding: 4px 6px; border-bottom: 1px solid var(--border); color: var(--fg); }
     tr:hover td { background: var(--surface2); }
     .score-hi { color: var(--rojo);    font-weight: 700; }
     .score-md { color: var(--warning); font-weight: 700; }
 
     /* ══ MAPA ══ */
-    #map-wrap {
-      flex: 1;
-      position: relative;
-      min-width: 0;
-    }
+    #map-wrap { flex: 1; position: relative; min-width: 0; }
     #map { width: 100%; height: 100%; }
 
     /* Loading */
     #loadOverlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(13,27,15,.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      z-index: 2000;
+      position: absolute; inset: 0;
+      background: rgba(245,246,247,.88);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; z-index: 2000;
     }
     #loadOverlay.hidden { display: none; }
     .spinner {
-      width: 42px; height: 42px;
+      width: 40px; height: 40px;
       border: 3px solid var(--border);
       border-top-color: var(--rojo);
       border-radius: 50%;
       animation: spin .7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #loadMsg { color: var(--fg-muted); font-size: .82rem; }
+    #loadMsg { color: var(--fg-muted); font-size: .8rem; }
     .retry-btn {
-      margin-top: 10px;
-      background: var(--rojo);
-      border: none;
-      color: #fff;
-      padding: 8px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-size: .8rem;
+      margin-top: 8px; background: var(--rojo);
+      border: none; color: #fff; padding: 8px 18px;
+      border-radius: 6px; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: .8rem;
     }
 
     /* ══ STATUS BAR ══ */
     #statusBar {
-      height: 28px;
-      background: var(--surface);
+      height: 26px;
+      background: var(--panel);
       border-top: 1px solid var(--border);
       padding: 0 14px;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       gap: 20px;
-      font-size: 0.66rem;
+      font-size: 0.64rem;
       color: var(--fg-dim);
       flex-shrink: 0;
     }
-    #statusBar em { color: var(--fg-muted); font-style: normal; }
+    #statusBar em { color: var(--fg-muted); font-style: normal; font-weight: 500; }
 
     /* ══ POPUP ══ */
     .leaflet-popup-content-wrapper {
-      background: var(--surface) !important;
+      background: #fff !important;
       color: var(--fg) !important;
       border: 1px solid var(--border) !important;
       border-radius: 10px !important;
-      box-shadow: var(--shadow) !important;
+      box-shadow: var(--shadow-md) !important;
     }
-    .leaflet-popup-tip-container { display: none; }
+    .leaflet-popup-tip { background: #fff !important; }
     .pop-title {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 7px;
+      font-size: 1rem; font-weight: 700;
+      color: var(--fg); margin-bottom: 7px;
       padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
     }
     .pop-row {
-      font-size: 0.76rem;
-      margin-bottom: 3px;
-      display: flex;
-      gap: 6px;
+      font-size: 0.75rem; margin-bottom: 3px;
+      display: flex; gap: 6px;
     }
-    .pop-row span { color: var(--fg-muted); min-width: 68px; flex-shrink: 0; }
+    .pop-row span { color: var(--fg-muted); min-width: 72px; flex-shrink: 0; }
+    .pop-gmaps {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 8px;
+      background: #1A73E8;
+      color: #fff;
+      font-size: 0.7rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 5px;
+      text-decoration: none;
+    }
+    .pop-gmaps:hover { background: #1558C0; }
     .pop-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.68rem;
-      font-weight: 600;
-      margin-top: 5px;
+      display: inline-block; padding: 2px 8px;
+      border-radius: 10px; font-size: 0.67rem; font-weight: 600;
+      margin-top: 5px; margin-right: 4px;
     }
-    .badge-fatal { background: rgba(200,16,46,.15); color: #ff4d6d; border: 1px solid var(--rojo); }
-    .badge-herido { background: rgba(232,132,10,.15); color: #ffa940; border: 1px solid var(--warning); }
-    .badge-danos  { background: rgba(0,112,60,.15);  color: #52c77a; border: 1px solid var(--verde); }
+    .badge-fatal  { background: #fde8ec; color: #a50f26; border: 1px solid #f0b8c0; }
+    .badge-herido { background: #fef3e2; color: #9a4e06; border: 1px solid #f5c97a; }
+    .badge-danos  { background: #e6f4ee; color: #005a30; border: 1px solid #9dd3b6; }
 
     /* ══ RESPONSIVE ══ */
     @media (max-width: 680px) {
       .layout { flex-direction: column; }
-      #sidebar {
-        width: 100%;
-        max-height: 38vh;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 0;
-      }
-      #sidebar .sec {
-        min-width: 220px;
-        border-right: 1px solid var(--border);
-        border-bottom: none;
-      }
+      #sidebar { width: 100%; max-height: 40vh; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+      #sidebar .sec { min-width: 210px; border-right: 1px solid var(--border); border-bottom: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════ HEADER ══════════ -->
+<!-- ══ HEADER ══ -->
 <header>
-  <div class="header-esc">🛡️</div>
-  <div class="header-text">
+  <div>
     <h1>Mapa de Siniestros Viales · Arauca</h1>
     <p>Observatorio Nacional de Seguridad Vial (ONSV / ANSV) · Colombia</p>
   </div>
-  <div class="header-badge" id="updateBadge">Cargando…</div>
 </header>
 
-<!-- ══════════ MAIN LAYOUT ══════════ -->
+<!-- ══ LAYOUT ══ -->
 <div class="layout">
 
-  <!-- ────────── SIDEBAR ────────── -->
+  <!-- ────── SIDEBAR ────── -->
   <div id="sidebar">
 
     <!-- KPIs -->
@@ -468,7 +385,7 @@
         <span class="check">✓</span>
       </button>
       <button class="layer-btn on" id="btnZonas" onclick="toggleLayer('zonas')">
-        <div class="dot" style="background:var(--rojo)"></div>
+        <div class="dot" style="background:#C8102E"></div>
         Zonas críticas (buffer)
         <span class="check">✓</span>
       </button>
@@ -479,18 +396,18 @@
       </button>
     </div>
 
-    <!-- Umbral zonas críticas -->
+    <!-- Umbral -->
     <div class="sec">
       <div class="sec-title">⚡ Umbral Zona Crítica</div>
       <div class="slider-header">
-        <span style="font-size:.76rem;color:var(--fg-muted)">Puntaje mínimo</span>
+        <span style="font-size:.74rem;color:var(--fg-muted)">Puntaje mínimo</span>
         <span class="val" id="sliderVal">24</span>
       </div>
       <input type="range" id="sliderUmbral" min="2" max="120" value="24" step="2"
              oninput="onSlider(this.value)" />
       <div class="slider-legend">
-        <div class="sl-item">⚰️ <strong>12 pts</strong> / fallecido</div>
-        <div class="sl-item">🤕 <strong>2 pts</strong> / herido</div>
+        <div class="sl-item">⚰️ <strong>12 pts</strong>&nbsp;/ fallecido</div>
+        <div class="sl-item">🤕 <strong>2 pts</strong>&nbsp;/ herido</div>
       </div>
     </div>
 
@@ -525,11 +442,11 @@
     <!-- Leyenda -->
     <div class="sec">
       <div class="sec-title">📌 Leyenda</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#C8102E"></div> Con muertos</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#E8840A"></div> Con heridos</div>
-      <div class="leg-item"><div class="leg-dot" style="background:#00703C"></div> Solo daños</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#C8102E"></div>Con muertos</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#D4700A"></div>Con heridos</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#00703C"></div>Solo daños</div>
       <div class="leg-item">
-        <div class="leg-rect" style="background:rgba(200,16,46,.2);border:1px dashed #C8102E"></div>
+        <div class="leg-rect" style="background:rgba(200,16,46,.12);border:1.5px dashed #C8102E"></div>
         Zona crítica (radio 300 m)
       </div>
     </div>
@@ -539,9 +456,7 @@
       <div class="sec-title">🚨 Top Zonas Críticas</div>
       <div class="zonas-wrap">
         <table>
-          <thead>
-            <tr><th>#</th><th>Eventos</th><th>Puntaje</th></tr>
-          </thead>
+          <thead><tr><th>#</th><th>Eventos</th><th>Puntaje</th></tr></thead>
           <tbody id="zonasBody">
             <tr><td colspan="3" style="color:var(--fg-dim);padding:6px">Calculando…</td></tr>
           </tbody>
@@ -551,7 +466,7 @@
 
   </div><!-- /sidebar -->
 
-  <!-- ────────── MAPA ────────── -->
+  <!-- ────── MAPA ────── -->
   <div id="map-wrap">
     <div id="loadOverlay">
       <div class="spinner"></div>
@@ -562,7 +477,7 @@
 
 </div><!-- /layout -->
 
-<!-- ══════════ STATUS BAR ══════════ -->
+<!-- ══ STATUS BAR ══ -->
 <div id="statusBar">
   <span>Fuente: Google Sheets · ONSV / ANSV</span>
   <span>Visibles: <em id="stPuntos">–</em></span>
@@ -571,53 +486,31 @@
 </div>
 
 
-<!-- ══════════════════════════════════════
-     SCRIPTS
-     ══════════════════════════════════════ -->
+<!-- ════════════════ SCRIPTS ════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<!-- Leaflet.heat para mapa de calor -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 
 <script>
 'use strict';
 
-/* ══════════════════════════════════════
-   CONFIGURACIÓN
-   ══════════════════════════════════════ */
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ93MU_oAwqXfmB5hrtnCE502JhLnteQH60Eu45fWRFIJwNJfAE1VYPjnEK_hawE8Uk1aXSASPiRB1N/pub?output=csv';
+/* ── CONFIG ── */
+const CSV_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ93MU_oAwqXfmB5hrtnCE502JhLnteQH60Eu45fWRFIJwNJfAE1VYPjnEK_hawE8Uk1aXSASPiRB1N/pub?output=csv';
+const CENTRO    = [6.547, -71.0];
+const ZOOM_0    = 8;
+const EPS_KM    = 0.4;
+const MIN_PTS   = 2;
+const BUFFER_M  = 300;
+const PTS_M     = 12;
+const PTS_H     = 2;
 
-// Centro del departamento de Arauca
-const CENTRO  = [6.547, -71.0];
-const ZOOM_0  = 8;
-
-// DBSCAN
-const EPS_KM  = 0.4;   // radio vecindad en km
-const MIN_PTS = 2;      // puntos mínimos por cluster
-
-// Buffer zona crítica
-const BUFFER_M = 300;
-
-// Puntajes ponderados
-const PTS_MUERTO = 12;
-const PTS_HERIDO = 2;
-
-/* ══════════════════════════════════════
-   ESTADO
-   ══════════════════════════════════════ */
-let allData      = [];
-let filteredData = [];
-let umbral       = 24;
-
-let clusterGroup = null;
-let heatLyr      = null;
-let zonasGroup   = null;
-
+/* ── ESTADO ── */
+let allData = [], filteredData = [];
+let umbral  = 24;
+let clusterGroup = null, heatLyr = null, zonasGroup = null;
 const layerOn = { clusters: true, zonas: true, calor: false };
 
-/* ══════════════════════════════════════
-   MAPA BASE
-   ══════════════════════════════════════ */
+/* ── MAPA BASE ── */
 const map = L.map('map', { zoomControl: true }).setView(CENTRO, ZOOM_0);
 
 const tiles = {
@@ -626,478 +519,350 @@ const tiles = {
     maxZoom: 19
   }),
   'Topo': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors, © OpenTopoMap',
-    maxZoom: 17
+    attribution: '© OpenStreetMap contributors, © OpenTopoMap', maxZoom: 17
   }),
-  'Satélite (Esri)': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles © Esri — Source: Esri, USGS, NOAA',
-    maxZoom: 19
-  }),
-  'Satélite + Calles': L.layerGroup([
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, opacity: 0.7 })
-  ])
+  'Satélite (Esri)': L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Tiles © Esri', maxZoom: 19 }
+  )
 };
 tiles['Calles (OSM)'].addTo(map);
 L.control.layers(tiles, {}, { position: 'topright' }).addTo(map);
 
-/* ══════════════════════════════════════
-   CSV PARSER
-   ══════════════════════════════════════ */
+/* ── CSV ── */
 function parseCSV(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().split('\n');
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
   if (lines.length < 2) return [];
-  const headers = splitCSVLine(lines[0]);
-  return lines.slice(1).map(line => {
-    const vals = splitCSVLine(line);
-    const obj  = {};
-    headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
-    return obj;
+  const headers = splitLine(lines[0]);
+  return lines.slice(1).map(l => {
+    const v = splitLine(l), o = {};
+    headers.forEach((h,i) => { o[h.trim()] = (v[i]||'').trim(); });
+    return o;
   }).filter(o => Object.values(o).some(v => v !== ''));
 }
-
-function splitCSVLine(line) {
-  const res = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') {
-      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (c === ',' && !inQ) {
-      res.push(cur); cur = '';
-    } else cur += c;
+function splitLine(l) {
+  const r=[]; let cur='', inQ=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(c==='"'){ if(inQ&&l[i+1]==='"'){cur+='"';i++;}else inQ=!inQ; }
+    else if(c===','&&!inQ){ r.push(cur); cur=''; }
+    else cur+=c;
   }
-  res.push(cur);
-  return res;
+  r.push(cur); return r;
 }
 
-/* ══════════════════════════════════════
-   PARSE REGISTRO
-   ══════════════════════════════════════ */
+/* ── PARSE REGISTRO ── */
 function parseReg(row) {
-  // Coordenadas — soportar múltiples nombres de columna
-  let lat = toFloat(row['Latitude']  || row['Latitud']  || row['latitud']  || row['LAT'] || '');
-  let lon = toFloat(row['Longitude'] || row['Longitud'] || row['longitud'] || row['LON'] || '');
-
-  // Alternativa: columna Coordenadas "lat,lon"
-  if ((!lat || !lon) && row['Coordenadas']) {
-    const parts = row['Coordenadas'].split(',');
-    if (parts.length === 2) { lat = toFloat(parts[0]); lon = toFloat(parts[1]); }
+  let lat = toF(row['Latitude']||row['Latitud']||row['latitud']||row['LAT']||'');
+  let lon = toF(row['Longitude']||row['Longitud']||row['longitud']||row['LON']||'');
+  if((!lat||!lon) && row['Coordenadas']){
+    const p=row['Coordenadas'].split(',');
+    if(p.length===2){lat=toF(p[0]);lon=toF(p[1]);}
   }
+  if(!lat||!lon||isNaN(lat)||isNaN(lon)) return null;
+  if(lat<5.5||lat>7.5||lon<-73.0||lon>-69.5) return null;
 
-  if (!lat || !lon || isNaN(lat) || isNaN(lon)) return null;
-
-  // Rango geográfico Arauca (amplio): lat 5.5–7.5, lon -73.0–-69.5
-  if (lat < 5.5 || lat > 7.5 || lon < -73.0 || lon > -69.5) return null;
-
-  const muertos = toInt(row['Cant_Muertos']     || row['Fallecidos'] || row['muertos'] || '0');
-  const heridos  = toInt(row['Cantidad_Heridos'] || row['Heridos']   || row['heridos'] || '0');
-  const score    = muertos * PTS_MUERTO + heridos * PTS_HERIDO;
-
-  const fecha    = row['FechaHecho'] || row['Fecha'] || '';
+  const muertos = toI(row['Cant_Muertos']||row['Fallecidos']||row['muertos']||'0');
+  const heridos  = toI(row['Cantidad_Heridos']||row['Heridos']||row['heridos']||'0');
+  const score    = muertos*PTS_M + heridos*PTS_H;
+  const fecha    = row['FechaHecho']||row['Fecha']||'';
   const anoM     = fecha.match(/(\d{4})/);
-  const ano      = anoM ? anoM[1] : '';
 
   return {
-    lat, lon, muertos, heridos, score, ano, fecha,
-    clase    : row['ClaseAcc']  || row['Clase']     || '',
-    gravedad : row['Gravedad']  || '',
-    municipio: row['Municipio'] || row['municipio'] || '',
-    via      : row['ViaHecho']  || row['Via']       || '',
-    hora     : row['HoraHecho'] || row['Hora']      || '',
+    lat, lon, muertos, heridos, score, fecha,
+    ano      : anoM ? anoM[1] : '',
+    clase    : row['ClaseAcc']||row['Clase']||'',
+    gravedad : row['Gravedad']||'',
+    municipio: row['Municipio']||row['municipio']||'',
+    hora     : row['HoraHecho']||row['Hora']||'',
   };
 }
+const toF = v => v===''||v==null ? null : parseFloat(String(v).replace(',','.'));
+const toI = v => { const n=parseInt(v,10); return isNaN(n)?0:n; };
 
-function toFloat(v) {
-  if (v === '' || v == null) return null;
-  return parseFloat(String(v).replace(',', '.'));
+/* ── DBSCAN ── */
+function hav(lat1,lon1,lat2,lon2){
+  const R=6371,D=Math.PI/180;
+  const dL=(lat2-lat1)*D, dO=(lon2-lon1)*D;
+  return 2*R*Math.asin(Math.sqrt(Math.sin(dL/2)**2+Math.cos(lat1*D)*Math.cos(lat2*D)*Math.sin(dO/2)**2));
 }
-function toInt(v) {
-  const n = parseInt(v, 10);
-  return isNaN(n) ? 0 : n;
+function nbrs(pts,i,eps){
+  const r=[];
+  for(let j=0;j<pts.length;j++) if(j!==i&&hav(pts[i].lat,pts[i].lon,pts[j].lat,pts[j].lon)<=eps) r.push(j);
+  return r;
 }
-
-/* ══════════════════════════════════════
-   DBSCAN
-   ══════════════════════════════════════ */
-function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371, D = Math.PI / 180;
-  const dLat = (lat2 - lat1) * D, dLon = (lon2 - lon1) * D;
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1 * D) * Math.cos(lat2 * D) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
-function dbscan(pts, eps, minPts) {
-  const n      = pts.length;
-  const labels = new Array(n).fill(null); // null=unvisited, -1=noise, >=0 cluster id
-  let cid      = 0;
-
-  for (let i = 0; i < n; i++) {
-    if (labels[i] !== null) continue;
-    const nb = getNeighbors(pts, i, eps);
-    if (nb.length < minPts) { labels[i] = -1; continue; }
-    labels[i] = cid;
-    const seed = [...nb];
-    for (let s = 0; s < seed.length; s++) {
-      const q = seed[s];
-      if (labels[q] === -1) labels[q] = cid;
-      if (labels[q] !== null) continue;
-      labels[q] = cid;
-      const qnb = getNeighbors(pts, q, eps);
-      if (qnb.length >= minPts) qnb.forEach(x => { if (!seed.includes(x)) seed.push(x); });
+function dbscan(pts,eps,minPts){
+  const n=pts.length, lbl=new Array(n).fill(null); let cid=0;
+  for(let i=0;i<n;i++){
+    if(lbl[i]!==null) continue;
+    const nb=nbrs(pts,i,eps);
+    if(nb.length<minPts){lbl[i]=-1;continue;}
+    lbl[i]=cid;
+    const seed=[...nb];
+    for(let s=0;s<seed.length;s++){
+      const q=seed[s];
+      if(lbl[q]===-1) lbl[q]=cid;
+      if(lbl[q]!==null) continue;
+      lbl[q]=cid;
+      const qn=nbrs(pts,q,eps);
+      if(qn.length>=minPts) qn.forEach(x=>{if(!seed.includes(x))seed.push(x);});
     }
     cid++;
   }
-  return labels;
+  return lbl;
 }
 
-function getNeighbors(pts, idx, eps) {
-  const nb = [];
-  const p  = pts[idx];
-  for (let i = 0; i < pts.length; i++) {
-    if (i !== idx && haversine(p.lat, p.lon, pts[i].lat, pts[i].lon) <= eps) nb.push(i);
-  }
-  return nb;
+/* ── COLOR ── */
+function gCol(d){
+  if(d.muertos>0) return '#C8102E';
+  if(d.heridos>0) return '#D4700A';
+  return '#00703C';
 }
-
-/* ══════════════════════════════════════
-   COLOR / ICONO
-   ══════════════════════════════════════ */
-function gravColor(d) {
-  if (d.muertos > 0) return '#C8102E';          // rojo Arauca
-  if (d.heridos > 0) return '#E8840A';          // naranja
-  return '#00703C';                              // verde Arauca
-}
-
-function mkIcon(color) {
+function mkIcon(color){
   return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:10px;height:10px;
-      background:${color};
-      border:1.5px solid rgba(255,255,255,.5);
-      border-radius:50%;
-      box-shadow:0 0 5px ${color}99;
-    "></div>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5]
+    className:'',
+    html:`<div style="width:11px;height:11px;background:${color};border:2px solid rgba(255,255,255,.8);border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+    iconSize:[11,11], iconAnchor:[5.5,5.5]
   });
 }
 
-/* ══════════════════════════════════════
-   POPUP
-   ══════════════════════════════════════ */
-function mkPopup(d) {
-  const badgeCls = d.muertos > 0 ? 'badge-fatal' : d.heridos > 0 ? 'badge-herido' : 'badge-danos';
-  const badgeTxt = d.muertos > 0 ? '⚰️ Con muertos' : d.heridos > 0 ? '🤕 Con heridos' : '🚗 Solo daños';
+/* ── POPUP ── */
+function mkPopup(d){
+  const badgeCls = d.muertos>0?'badge-fatal':d.heridos>0?'badge-herido':'badge-danos';
+  const badgeTxt = d.muertos>0?'⚰️ Con muertos':d.heridos>0?'🤕 Con heridos':'🚗 Solo daños';
+  const gmaps = `https://www.google.com/maps?q=${d.lat},${d.lon}&z=17&t=h`;
   return `
-    <div style="min-width:190px;padding:2px 0">
+    <div style="min-width:195px;padding:2px 0">
       <div class="pop-title">🚦 Siniestro Vial</div>
-      <div class="pop-row"><span>📅 Fecha</span>${d.fecha || '–'}</div>
-      <div class="pop-row"><span>🕐 Hora</span>${d.hora || '–'}</div>
-      <div class="pop-row"><span>📍 Municipio</span>${d.municipio || '–'}</div>
-      <div class="pop-row"><span>🛣️ Vía</span>${d.via || '–'}</div>
-      <div class="pop-row"><span>💥 Clase</span>${d.clase || '–'}</div>
+      <div class="pop-row"><span>📅 Fecha</span>${d.fecha||'–'}</div>
+      <div class="pop-row"><span>🕐 Hora</span>${d.hora||'–'}</div>
+      <div class="pop-row"><span>📍 Municipio</span>${d.municipio||'–'}</div>
+      <div class="pop-row"><span>💥 Clase</span>${d.clase||'–'}</div>
       <div class="pop-row"><span>⚰️ Fallecidos</span>${d.muertos}</div>
       <div class="pop-row"><span>🤕 Heridos</span>${d.heridos}</div>
       <div class="pop-row"><span>⚡ Puntaje</span><strong>${d.score} pts</strong></div>
-      <span class="pop-badge ${badgeCls}">${badgeTxt}</span>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="pop-badge ${badgeCls}">${badgeTxt}</span>
+        <a class="pop-gmaps" href="${gmaps}" target="_blank" rel="noopener">
+          📍 Ver en Google Maps
+        </a>
+      </div>
     </div>`;
 }
 
-/* ══════════════════════════════════════
-   MARCADORES + CALOR
-   ══════════════════════════════════════ */
-function buildMarkers(data) {
-  if (clusterGroup) { map.removeLayer(clusterGroup); clusterGroup = null; }
-  if (heatLyr)      { map.removeLayer(heatLyr);      heatLyr      = null; }
+/* ── MARKERS + HEAT ── */
+function buildMarkers(data){
+  if(clusterGroup){map.removeLayer(clusterGroup);clusterGroup=null;}
+  if(heatLyr){map.removeLayer(heatLyr);heatLyr=null;}
 
   clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 55,
-    showCoverageOnHover: false,
-    iconCreateFunction(cluster) {
-      const n  = cluster.getChildCount();
-      const sz = n < 10 ? 30 : n < 50 ? 38 : 48;
-      const bg = n < 5 ? '#00703C' : n < 20 ? '#E8840A' : '#C8102E';
+    maxClusterRadius:55,
+    showCoverageOnHover:false,
+    iconCreateFunction(cluster){
+      const n=cluster.getChildCount();
+      const sz=n<10?30:n<50?38:48;
+      const bg=n<5?'#00703C':n<20?'#D4700A':'#C8102E';
       return L.divIcon({
-        html: `<div style="
-          width:${sz}px;height:${sz}px;
-          background:${bg};
-          border:2px solid rgba(255,255,255,.6);
-          border-radius:50%;
-          display:flex;align-items:center;justify-content:center;
-          font-weight:700;color:#fff;font-size:${sz < 38 ? '0.72' : '0.85'}rem;
-          font-family:'Barlow Condensed',sans-serif;
-          box-shadow:0 2px 8px rgba(0,0,0,.4);
-        ">${n}</div>`,
-        iconSize: [sz, sz],
-        iconAnchor: [sz / 2, sz / 2]
+        html:`<div style="width:${sz}px;height:${sz}px;background:${bg};border:2.5px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:${sz<38?'0.72':'0.85'}rem;font-family:'Barlow Condensed',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25)">${n}</div>`,
+        iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
       });
     }
   });
 
-  const heatPts = [];
-
-  data.forEach(d => {
-    const m = L.marker([d.lat, d.lon], { icon: mkIcon(gravColor(d)) })
-               .bindPopup(mkPopup(d), { maxWidth: 240 });
-    clusterGroup.addLayer(m);
-    const intensity = Math.min(1, (d.score + 1) / 14);
-    heatPts.push([d.lat, d.lon, intensity]);
+  const heatPts=[];
+  data.forEach(d=>{
+    L.marker([d.lat,d.lon],{icon:mkIcon(gCol(d))})
+     .bindPopup(mkPopup(d),{maxWidth:260})
+     .addTo(clusterGroup);
+    // Intensidad del heat: proporcional al puntaje, mínimo 0.15 para puntos sin víctimas
+    const intensity = d.score > 0 ? Math.min(1, d.score / 30) : 0.15;
+    heatPts.push([d.lat,d.lon,intensity]);
   });
 
-  if (layerOn.clusters) clusterGroup.addTo(map);
+  if(layerOn.clusters) clusterGroup.addTo(map);
 
-  // Leaflet.heat
+  // Leaflet.heat — configuración con alto contraste para puntos calientes visibles
   heatLyr = L.heatLayer(heatPts, {
-    radius: 25,
-    blur: 20,
-    maxZoom: 17,
-    gradient: { 0.2: '#00703C', 0.5: '#E8840A', 1.0: '#C8102E' }
+    radius:  30,
+    blur:    18,
+    maxZoom: 18,
+    max:     1.0,
+    minOpacity: 0.55,
+    gradient: {
+      0.0: 'rgba(0,112,60,0)',
+      0.2: '#1a9850',
+      0.4: '#fee08b',
+      0.65:'#fc8d59',
+      0.85:'#d73027',
+      1.0: '#a50026'
+    }
   });
-  if (layerOn.calor) heatLyr.addTo(map);
+  if(layerOn.calor) heatLyr.addTo(map);
 }
 
-/* ══════════════════════════════════════
-   ZONAS CRÍTICAS (DBSCAN)
-   ══════════════════════════════════════ */
-function buildZonas(data) {
-  if (zonasGroup) { map.removeLayer(zonasGroup); zonasGroup = null; }
+/* ── ZONAS CRÍTICAS ── */
+function buildZonas(data){
+  if(zonasGroup){map.removeLayer(zonasGroup);zonasGroup=null;}
+  const pts=data.filter(d=>d.score>0);
+  if(pts.length<2){updateZonasUI([]);return;}
 
-  const pts = data.filter(d => d.score > 0);
-  if (pts.length < 2) { updateZonasUI([]); return; }
+  const labels=dbscan(pts,EPS_KM,MIN_PTS);
+  const clusters={};
+  labels.forEach((l,i)=>{ if(l<0)return; if(!clusters[l])clusters[l]=[]; clusters[l].push(pts[i]); });
 
-  const labels = dbscan(pts, EPS_KM, MIN_PTS);
+  zonasGroup=L.layerGroup();
+  const criticas=[];
 
-  // Agrupar por cluster id
-  const clusters = {};
-  labels.forEach((lbl, i) => {
-    if (lbl < 0) return;
-    if (!clusters[lbl]) clusters[lbl] = [];
-    clusters[lbl].push(pts[i]);
-  });
+  Object.values(clusters).forEach(members=>{
+    const ts=members.reduce((a,d)=>a+d.score,0);
+    const tm=members.reduce((a,d)=>a+d.muertos,0);
+    const th=members.reduce((a,d)=>a+d.heridos,0);
+    if(ts<umbral) return;
+    const cLat=members.reduce((a,d)=>a+d.lat,0)/members.length;
+    const cLon=members.reduce((a,d)=>a+d.lon,0)/members.length;
+    criticas.push({cLat,cLon,ts,tm,th,n:members.length});
 
-  zonasGroup = L.layerGroup();
-  const criticas = [];
-
-  Object.values(clusters).forEach(members => {
-    const ts = members.reduce((a, d) => a + d.score,   0);
-    const tm = members.reduce((a, d) => a + d.muertos, 0);
-    const th = members.reduce((a, d) => a + d.heridos, 0);
-    if (ts < umbral) return;
-
-    const cLat = members.reduce((a, d) => a + d.lat, 0) / members.length;
-    const cLon = members.reduce((a, d) => a + d.lon, 0) / members.length;
-    criticas.push({ cLat, cLon, ts, tm, th, n: members.length });
-
-    const intens = Math.min(1, ts / 80);
-    L.circle([cLat, cLon], {
-      radius: BUFFER_M,
-      color: '#C8102E',
-      weight: 1.5,
-      dashArray: '5 4',
-      fillColor: '#C8102E',
-      fillOpacity: 0.08 + intens * 0.15
-    })
-    .bindPopup(`
+    const op=Math.min(0.32, 0.08 + (ts/100)*0.24);
+    L.circle([cLat,cLon],{
+      radius:BUFFER_M, color:'#C8102E', weight:1.5,
+      dashArray:'5 4', fillColor:'#C8102E', fillOpacity:op
+    }).bindPopup(`
       <div style="min-width:180px;padding:2px 0">
         <div class="pop-title">🚨 Zona Crítica</div>
         <div class="pop-row"><span>🚦 Siniestros</span>${members.length}</div>
         <div class="pop-row"><span>⚰️ Fallecidos</span>${tm}</div>
         <div class="pop-row"><span>🤕 Heridos</span>${th}</div>
         <div class="pop-row"><span>⚡ Puntaje</span><strong style="color:#C8102E">${ts} pts</strong></div>
-        <div style="font-size:.65rem;color:var(--fg-dim);margin-top:6px">Radio buffer: ${BUFFER_M} m</div>
+        <div style="font-size:.64rem;color:var(--fg-dim);margin-top:5px">Radio buffer: ${BUFFER_M} m</div>
       </div>`)
     .addTo(zonasGroup);
   });
 
-  if (layerOn.zonas) zonasGroup.addTo(map);
+  if(layerOn.zonas) zonasGroup.addTo(map);
   updateZonasUI(criticas);
 }
 
-function updateZonasUI(list) {
-  document.getElementById('kpiZonas').textContent = list.length;
-  document.getElementById('stZonas').textContent  = list.length;
-
-  const top  = [...list].sort((a, b) => b.ts - a.ts).slice(0, 10);
-  const tbody = document.getElementById('zonasBody');
-  if (!top.length) {
-    tbody.innerHTML = '<tr><td colspan="3" style="color:var(--fg-dim);padding:6px">Sin zonas con umbral actual</td></tr>';
+function updateZonasUI(list){
+  document.getElementById('kpiZonas').textContent=list.length;
+  document.getElementById('stZonas').textContent=list.length;
+  const top=[...list].sort((a,b)=>b.ts-a.ts).slice(0,10);
+  const tb=document.getElementById('zonasBody');
+  if(!top.length){
+    tb.innerHTML='<tr><td colspan="3" style="color:var(--fg-dim);padding:6px">Sin zonas con umbral actual</td></tr>';
     return;
   }
-  tbody.innerHTML = top.map((z, i) => {
-    const cls = z.ts >= 60 ? 'score-hi' : z.ts >= 28 ? 'score-md' : '';
-    return `<tr>
-      <td>${i + 1}</td>
-      <td>${z.n} (⚰️${z.tm} 🤕${z.th})</td>
-      <td class="${cls}">${z.ts}</td>
-    </tr>`;
-  }).join('');
+  tb.innerHTML=top.map((z,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${z.n} (⚰️${z.tm}&nbsp;🤕${z.th})</td>
+      <td class="${z.ts>=60?'score-hi':z.ts>=28?'score-md':''}">${z.ts}</td>
+    </tr>`).join('');
 }
 
-/* ══════════════════════════════════════
-   KPIs GENERALES
-   ══════════════════════════════════════ */
-function updateKPIs(data) {
-  document.getElementById('kpiTotal').textContent   = data.length;
-  document.getElementById('kpiFatales').textContent = data.reduce((s, d) => s + d.muertos, 0);
-  document.getElementById('kpiHeridos').textContent = data.reduce((s, d) => s + d.heridos, 0);
-  document.getElementById('stPuntos').textContent   = data.length;
+/* ── KPIs ── */
+function updateKPIs(data){
+  document.getElementById('kpiTotal').textContent=data.length;
+  document.getElementById('kpiFatales').textContent=data.reduce((s,d)=>s+d.muertos,0);
+  document.getElementById('kpiHeridos').textContent=data.reduce((s,d)=>s+d.heridos,0);
+  document.getElementById('stPuntos').textContent=data.length;
 }
 
-/* ══════════════════════════════════════
-   FILTROS
-   ══════════════════════════════════════ */
-function populateSelect(id, vals) {
-  const sel = document.getElementById(id);
-  const cur = sel.value;
-  // Conservar la primera opción vacía
-  while (sel.options.length > 1) sel.remove(1);
-  vals.sort().forEach(v => {
-    const o = document.createElement('option');
-    o.value = o.textContent = v;
-    sel.appendChild(o);
-  });
-  if (cur) sel.value = cur;
+/* ── FILTROS ── */
+function populateSelect(id,vals){
+  const sel=document.getElementById(id);
+  while(sel.options.length>1) sel.remove(1);
+  [...vals].sort().forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); });
 }
-
-function populateFilters() {
-  populateSelect('fAno',    [...new Set(allData.map(d => d.ano).filter(Boolean))]);
-  populateSelect('fMun',    [...new Set(allData.map(d => d.municipio).filter(Boolean))]);
-  populateSelect('fClase',  [...new Set(allData.map(d => d.clase).filter(Boolean))]);
+function populateFilters(){
+  populateSelect('fAno',  [...new Set(allData.map(d=>d.ano).filter(Boolean))]);
+  populateSelect('fMun',  [...new Set(allData.map(d=>d.municipio).filter(Boolean))]);
+  populateSelect('fClase',[...new Set(allData.map(d=>d.clase).filter(Boolean))]);
 }
-
-function applyFilters() {
-  const ano  = document.getElementById('fAno').value;
-  const mun  = document.getElementById('fMun').value;
-  const cls  = document.getElementById('fClase').value;
-  const grav = document.getElementById('fGravedad').value;
-
-  filteredData = allData.filter(d => {
-    if (ano && d.ano       !== ano) return false;
-    if (mun && d.municipio !== mun) return false;
-    if (cls && d.clase     !== cls) return false;
-    if (grav === 'fatal'  && d.muertos === 0) return false;
-    if (grav === 'heridos' && (d.muertos > 0 || d.heridos === 0)) return false;
-    if (grav === 'danos'  && (d.muertos > 0 || d.heridos > 0))    return false;
+function applyFilters(){
+  const ano=document.getElementById('fAno').value;
+  const mun=document.getElementById('fMun').value;
+  const cls=document.getElementById('fClase').value;
+  const grav=document.getElementById('fGravedad').value;
+  filteredData=allData.filter(d=>{
+    if(ano&&d.ano!==ano) return false;
+    if(mun&&d.municipio!==mun) return false;
+    if(cls&&d.clase!==cls) return false;
+    if(grav==='fatal'  &&d.muertos===0) return false;
+    if(grav==='heridos'&&(d.muertos>0||d.heridos===0)) return false;
+    if(grav==='danos'  &&(d.muertos>0||d.heridos>0))   return false;
     return true;
   });
-
   refresh();
 }
+function refresh(){ updateKPIs(filteredData); buildMarkers(filteredData); buildZonas(filteredData); }
 
-function refresh() {
-  updateKPIs(filteredData);
-  buildMarkers(filteredData);
+/* ── TOGGLE CAPAS ── */
+function toggleLayer(name){
+  layerOn[name]=!layerOn[name];
+  const cap=name.charAt(0).toUpperCase()+name.slice(1);
+  const btn=document.getElementById('btn'+cap);
+  layerOn[name]?btn.classList.add('on'):btn.classList.remove('on');
+  if(name==='clusters'&&clusterGroup) layerOn.clusters?clusterGroup.addTo(map):map.removeLayer(clusterGroup);
+  if(name==='zonas'   &&zonasGroup)   layerOn.zonas   ?zonasGroup.addTo(map)  :map.removeLayer(zonasGroup);
+  if(name==='calor'   &&heatLyr)      layerOn.calor   ?heatLyr.addTo(map)     :map.removeLayer(heatLyr);
+}
+
+/* ── SLIDER ── */
+function onSlider(val){
+  umbral=parseInt(val,10);
+  document.getElementById('sliderVal').textContent=umbral;
   buildZonas(filteredData);
 }
 
-/* ══════════════════════════════════════
-   TOGGLE CAPAS
-   ══════════════════════════════════════ */
-function toggleLayer(name) {
-  layerOn[name] = !layerOn[name];
-  const btn = document.getElementById('btn' + name.charAt(0).toUpperCase() + name.slice(1));
-  if (layerOn[name]) btn.classList.add('on'); else btn.classList.remove('on');
-
-  if (name === 'clusters' && clusterGroup) {
-    layerOn.clusters ? clusterGroup.addTo(map) : map.removeLayer(clusterGroup);
-  }
-  if (name === 'zonas' && zonasGroup) {
-    layerOn.zonas ? zonasGroup.addTo(map) : map.removeLayer(zonasGroup);
-  }
-  if (name === 'calor' && heatLyr) {
-    layerOn.calor ? heatLyr.addTo(map) : map.removeLayer(heatLyr);
-  }
-}
-
-/* ══════════════════════════════════════
-   SLIDER
-   ══════════════════════════════════════ */
-function onSlider(val) {
-  umbral = parseInt(val, 10);
-  document.getElementById('sliderVal').textContent = umbral;
-  buildZonas(filteredData);
-}
-
-/* ══════════════════════════════════════
-   CARGA DE DATOS
-   ══════════════════════════════════════ */
-async function loadData() {
-  const overlay = document.getElementById('loadOverlay');
-  const msg     = document.getElementById('loadMsg');
-
-  const proxies = [
+/* ── CARGA ── */
+async function loadData(){
+  const overlay=document.getElementById('loadOverlay');
+  const msg=document.getElementById('loadMsg');
+  const proxies=[
     CSV_URL,
     `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`,
     `https://corsproxy.io/?${encodeURIComponent(CSV_URL)}`
   ];
-
-  let text = null;
-  for (const url of proxies) {
-    try {
-      msg.textContent = url === CSV_URL ? 'Conectando con Google Sheets…' : 'Intentando proxy CORS…';
-      const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-      if (!res.ok) continue;
-      text = await res.text();
-      if (text && text.length > 100) break;
-    } catch (_) { /* continuar con siguiente proxy */ }
+  let text=null;
+  for(const url of proxies){
+    try{
+      msg.textContent=url===CSV_URL?'Conectando con Google Sheets…':'Usando proxy CORS…';
+      const res=await fetch(url,{signal:AbortSignal.timeout(12000)});
+      if(!res.ok) continue;
+      const t=await res.text();
+      if(t&&t.length>100){text=t;break;}
+    }catch(_){}
   }
-
-  if (!text || text.length < 100) {
-    overlay.innerHTML = `
-      <div style="color:var(--rojo);font-weight:700;font-size:.95rem;margin-bottom:8px">❌ No se pudieron cargar los datos</div>
-      <div style="font-size:.76rem;color:var(--fg-muted);max-width:300px;text-align:center">
-        Verifica que el Google Sheet esté publicado como CSV en "Archivo → Compartir → Publicar en la web"
-        y que la URL sea correcta.
+  if(!text||text.length<100){
+    overlay.innerHTML=`
+      <div style="color:#C8102E;font-weight:700;font-size:.95rem;margin-bottom:8px">❌ No se pudieron cargar los datos</div>
+      <div style="font-size:.76rem;color:#5A6475;max-width:300px;text-align:center">
+        Verifica que el Google Sheet esté publicado como CSV.
       </div>
       <button class="retry-btn" onclick="location.reload()">🔄 Reintentar</button>`;
-    document.getElementById('updateBadge').textContent = '❌ Error';
     return;
   }
-
-  msg.textContent = 'Procesando registros…';
-
-  try {
-    const rows = parseCSV(text);
-    allData = rows.map(parseReg).filter(Boolean);
-
-    if (allData.length === 0) {
-      msg.textContent = '⚠️ No hay registros con coordenadas válidas en el rango de Arauca';
-      document.getElementById('updateBadge').textContent = '⚠️ Sin datos';
+  msg.textContent='Procesando registros…';
+  try{
+    allData=parseCSV(text).map(parseReg).filter(Boolean);
+    if(allData.length===0){
+      msg.textContent='⚠️ Sin registros con coordenadas válidas en Arauca';
       return;
     }
-
     populateFilters();
-    filteredData = [...allData];
+    filteredData=[...allData];
     refresh();
-
-    // Ajustar vista al bounding box real
-    const lats = allData.map(d => d.lat);
-    const lons = allData.map(d => d.lon);
-    try {
-      map.fitBounds([
-        [Math.min(...lats), Math.min(...lons)],
-        [Math.max(...lats), Math.max(...lons)]
-      ], { padding: [30, 30], maxZoom: 13 });
-    } catch (_) {}
-
-    const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'short', timeStyle: 'short' });
-    document.getElementById('stFecha').textContent   = now;
-    document.getElementById('updateBadge').textContent = `✅ ${allData.length} registros`;
-
+    const lats=allData.map(d=>d.lat), lons=allData.map(d=>d.lon);
+    try{ map.fitBounds([[Math.min(...lats),Math.min(...lons)],[Math.max(...lats),Math.max(...lons)]],{padding:[30,30],maxZoom:13}); }catch(_){}
+    const now=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',dateStyle:'short',timeStyle:'short'});
+    document.getElementById('stFecha').textContent=now;
     overlay.classList.add('hidden');
-
-  } catch (err) {
-    msg.textContent = '❌ Error procesando el CSV: ' + err.message;
-    document.getElementById('updateBadge').textContent = '❌ Error';
+  }catch(err){
+    msg.textContent='❌ Error procesando el CSV: '+err.message;
     console.error(err);
   }
 }
 
-// ── Arranque ──
 loadData();
 </script>
 </body>
